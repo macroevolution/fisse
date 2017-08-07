@@ -445,15 +445,31 @@ fitMK2 <- function(phy, states, nopt = 1){
 }
 
 # Fast Intuitive analysis of State-dependent Speciation Extinction rates
-FISSE.binary <- function(phy, states, reps = 1000, tol=0.1, qratetype = "mk", ...){
-	
-	if (length(intersect(names(states), phy$tip.label)) != length(phy$tip.label) ){
-		stop("error in names matching between tree tips and state vector")
+#      incomplete = TRUE  : allows trait data to be subset of tree, e.g., incomplete sampling for trait data
+#                  
+FISSE.binary <- function(phy, states, reps = 1000, tol=0.1, qratetype = "mk", incomplete = TRUE, ...){
+ 
+	mism <- setdiff(names(states), phy$tip.label)
+	if (length(mism) > 0){
+		stop("Error: Trait data includes taxa that are not present in tree\n")
 	}
-	states <- states[phy$tip.label] 
+	
+	if (! incomplete){
+		if (length(intersect(names(states), phy$tip.label)) != length(phy$tip.label) ){
+			stop("error in names matching between tree tips and state vector")
+		}		
+	}
 	
 	# The ES measures:
-	dx <- DR_statistic(phy)
+	dx <- DR_statistic(phy)	
+	
+	# now drop tree to same set of taxa in states dataset:
+	phy <- drop.tip(phy, tip = setdiff(phy$tip.label, names(states)))
+ 	
+ 	dx <- dx[phy$tip.label]
+ 
+	states <- states[phy$tip.label] 
+
 	lam0 <- dx[names(states)[states == 0] ]
 	lam1 <- dx[names(states)[states == 1] ]
  

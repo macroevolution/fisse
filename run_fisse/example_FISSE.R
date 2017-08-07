@@ -64,7 +64,22 @@ pval_2tailed   <- min(res$pval, 1-res$pval)*2
 #
 
 
+# Here is an example with incomplete trait data:
 
+
+tree          <- read.tree("example_tree.tre")
+xx            <- read.csv("example_trait.csv", header=F)
+traits        <- xx[,2]
+names(traits) <- xx[,1]
+ 
+# Drop some random trait data
+
+# Drop size of trait dataset to 80% of current length:
+dropcount <- round(0.80 * length(traits))
+
+traits <- traits[sample(1:length(traits), size = dropcount )]
+
+res <- FISSE.binary(tree, traits, incomplete = T)
 
 
 
